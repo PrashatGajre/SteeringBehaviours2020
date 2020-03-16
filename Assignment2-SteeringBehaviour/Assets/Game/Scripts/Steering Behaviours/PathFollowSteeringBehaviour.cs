@@ -13,20 +13,33 @@ public class PathFollowSteeringBehaviour : ArriveSteeringBehaviour
 
 	private NavMeshPath path;
 
+	public bool arrived = false;
+
     void Start()
     {
+		//GeneratePath();
+    }
+
+	public void GeneratePath()
+	{
+		arrived = false;
 		path = new NavMeshPath();
-		NavMesh.CalculatePath(transform.position, PathTarget.position, NavMesh.AllAreas, path);
+		currentWaypointIndex = 0;
+		NavMesh.CalculatePath(transform.position, target, NavMesh.AllAreas, path);
 		if (path != null && path.corners.Length > 0)
 		{
-			target = path.corners[0];
+			target = path.corners[currentWaypointIndex];
 		}
-    }
+	}
 
 	public override Vector3 calculateForce()
 	{
 		if (currentWaypointIndex >= path.corners.Length - 1)
 		{
+			if ((target - transform.parent.position).magnitude < WaypointSeekDist)
+			{
+				arrived = true; 
+			}
 			return base.calculateForce();
 		}
 		else if ((path.corners[currentWaypointIndex] - transform.parent.position).magnitude < WaypointSeekDist)
